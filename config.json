@@ -5,6 +5,5 @@
     ],
     "CLOUDFLARE_DNS_API_TOKEN": "WXWiT3wbZnDPUwarGPeYHbqLqi1omjDi3e61ySwa",
     "EXCLUDED_DNS_RECORD_NAMES": ["home.example.tld", "test.example2.tld"],
-    // should return raw text
     "IP_ADDRESS_PROVIDER_ENDPOINT": "https://api.ipify.org"
 }

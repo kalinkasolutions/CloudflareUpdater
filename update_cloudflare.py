@@ -2,6 +2,7 @@ import ipaddress
 import requests
 import json
 import logging
+import sys
 
 with open('config.json') as config_file:
     config_data = json.load(config_file)
@@ -10,12 +11,18 @@ ZONES = config_data["ZONES"]
 CLOUDFLARE_DNS_API_TOKEN = config_data["CLOUDFLARE_DNS_API_TOKEN"]
 HEADERS = {'Authorization': f'Bearer {CLOUDFLARE_DNS_API_TOKEN}'}
 EXCLUDED_DNS_RECORD_NAMES = set(config_data["EXCLUDED_DNS_RECORD_NAMES"])
+IP_FILE_PATH = "./previous_ip"
 
 logging.basicConfig(filename='error.log', level=logging.ERROR)
 
 def get_current_ip():
-    ip_request = requests.get(config_data["IP_ADDRESS_PROVIDER_ENDPOINT"])
-    return ip_request.text
+    try:
+        ip_request = requests.get(config_data["IP_ADDRESS_PROVIDER_ENDPOINT"])
+        ip_request.raise_for_status()
+        return ip_request.text
+    except requests.exceptions.RequestException as e:
+        logging.error(f"Failed to get current IP: {e}")
+        sys.exit()
 
 def should_update_dns_record(dns_record, current_ip):
     return (
@@ -36,7 +43,17 @@ def update_dns_records_for_zone(zone):
     except Exception as e:
         logging.error(f"Failed to update DNS records for zone {zone['name']}: {e}")
 
+try:
+    with open(IP_FILE_PATH, "r") as f:
+        previous_ip = f.read().strip()
+except FileNotFoundError:
+    previous_ip = ""
+
 current_ip = get_current_ip()
 
-for zone in ZONES:
-    update_dns_records_for_zone(zone)
+if current_ip != previous_ip:
+    with open(IP_FILE_PATH, "w") as f:
+            f.write(current_ip)
+    for zone in ZONES:
+        update_dns_records_for_zone(zone)
+

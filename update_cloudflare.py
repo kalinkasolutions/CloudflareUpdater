@@ -36,7 +36,7 @@ def update_dns_records_for_zone(zone, authorization_headers, current_ip):
 
 logging.basicConfig(filename='log.log', level=logging.INFO)
 
-with open('local.json') as config_file:
+with open('config.json') as config_file:
     config_data = json.load(config_file)
 
 ip_file_path = "./previous_ip"

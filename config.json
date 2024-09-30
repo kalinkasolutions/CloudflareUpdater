@@ -1,9 +1,32 @@
 {
-    "ZONES": [
-        {"name": "example.tld", "zone_id": "0n8088exscjn34ong817lqnev8rfrcxu"},
-        {"name": "example2.tld", "zone_id": "knci3mdhft5fcfsi9clvfvkyamihq4up"}
+    "cloudflare_configs": [
+        {
+            "zones": [
+                {
+                    "name": "example.tld",
+                    "zone_id": "0n8088exscjn34ong817lqnev8rfrcxu"
+                },
+                {
+                    "name": "example2.tld",
+                    "zone_id": "knci3mdhft5fcfsi9clvfvkyamihq4up"
+                }
+            ],
+            "cloudflare_api_token": "WXWiT3wbZnDPUwarGPeYHbqLqi1omjDi3e61ySwa",
+            "excluded_dns_records": [
+                "home.example.tld",
+                "test.example2.tld"
+            ]
+        },
+        {
+            "zones": [
+                {
+                    "name": "exapmle3.tld",
+                    "zone_id": "fjklajfdj091491jrofjsdkal54kl"
+                }
+            ],
+            "cloudflare_api_token": "JKLf23jorjrfklmdv09JKLfdsajlfj20rj2oifj",
+            "excluded_dns_records": []
+        }
     ],
-    "CLOUDFLARE_DNS_API_TOKEN": "WXWiT3wbZnDPUwarGPeYHbqLqi1omjDi3e61ySwa",
-    "EXCLUDED_DNS_RECORD_NAMES": ["home.example.tld", "test.example2.tld"],
-    "IP_ADDRESS_PROVIDER_ENDPOINT": "https://api.ipify.org"
+    "ip_address_provider_url": "https://api.ipify.org"
 }

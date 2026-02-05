@@ -111,6 +111,7 @@ for config in config_data["CLOUDFLARE_CONFIGS"]:
             update_dns_records_for_zone(zone, authorization_headers, current_ip)
         )
 
-    if all(update_success):
-        with open(ip_file_path, "w") as f:
-            f.write(current_ip)
+if all(update_success):
+    logging.info(f"Updating ip from: {previous_ip} to {current_ip}")
+    with open(ip_file_path, "w") as f:
+        f.write(current_ip)

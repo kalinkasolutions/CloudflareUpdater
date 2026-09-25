@@ -32,7 +32,7 @@ Relative paths are relative to the script's folder.
 Set `metrics_file` to a file in node_exporter's textfile collector folder, e.g.
 `/var/lib/prometheus/node-exporter/cloudflare_updater.prom`. The user running the cron job needs
 write access to that folder:
-`sudo setfacl -m u:$USER:rwx /var/lib/prometheus/node-exporter`
+`sudo setfacl -m u:${USER}:rwx /var/lib/prometheus/node-exporter`
 
 | Metric | Meaning |
 | --- | --- |

@@ -1,18 +1,18 @@
 {
-    "cloudflare_configs": [
+    "cloudflare_accounts": [
         {
             "zones": [
                 {
                     "name": "example.tld",
-                    "zone_id": "0n8088exscjn34ong817lqnev8rfrcxu"
+                    "zone_id": "your-zone-id"
                 },
                 {
                     "name": "example2.tld",
-                    "zone_id": "knci3mdhft5fcfsi9clvfvkyamihq4up"
+                    "zone_id": "your-other-zone-id"
                 }
             ],
-            "cloudflare_api_token": "WXWiT3wbZnDPUwarGPeYHbqLqi1omjDi3e61ySwa",
-            "excluded_dns_records": [
+            "api_token": "your-api-token",
+            "excluded_records": [
                 "home.example.tld",
                 "test.example2.tld"
             ]
@@ -20,13 +20,17 @@
         {
             "zones": [
                 {
-                    "name": "exapmle3.tld",
-                    "zone_id": "fjklajfdj091491jrofjsdkal54kl"
+                    "name": "example3.tld",
+                    "zone_id": "your-third-zone-id"
                 }
             ],
-            "cloudflare_api_token": "JKLf23jorjrfklmdv09JKLfdsajlfj20rj2oifj",
-            "excluded_dns_records": []
+            "api_token": "your-other-api-token",
+            "excluded_records": []
         }
     ],
-    "ip_address_provider_url": "https://api.ipify.org"
+    "ip_provider_url": "https://api.ipify.org",
+    "request_timeout_seconds": 10,
+    "dns_record_ttl_seconds": 120,
+    "log_file": "cloudflare_updater.log",
+    "metrics_file": "/var/lib/prometheus/node-exporter/cloudflare_updater.prom"
 }

@@ -4,6 +4,7 @@ import ipaddress
 import json
 import logging
 import time
+import urllib.parse
 import urllib.request
 from pathlib import Path
 
@@ -14,6 +15,10 @@ DEFAULT_CONFIG_FILE = SCRIPT_DIR / "config.json"
 DEFAULT_LOG_FILE = "cloudflare_updater.log"
 DEFAULT_REQUEST_TIMEOUT_SECONDS = 10
 DEFAULT_DNS_RECORD_TTL_SECONDS = 120
+
+LOKI_PUSH_PATH = "/loki/api/v1/push"
+LOKI_PUSH_TIMEOUT_SECONDS = 5
+LOKI_LABELS = {"service_name": "cloudflareupdater"}
 
 # Network failures and HTTP error replies are OSErrors; a garbled reply is a ValueError.
 REQUEST_ERRORS = (OSError, ValueError)
@@ -121,6 +126,50 @@ def write_metrics(metrics_file, metrics_text):
     temp_file.replace(metrics_file)
 
 
+def loki_push_url(loki_url):
+    # A bare Loki address like http://loki:3100 gets the push path added.
+    if urllib.parse.urlparse(loki_url).path in ("", "/"):
+        return loki_url.rstrip("/") + LOKI_PUSH_PATH
+    return loki_url
+
+
+def format_loki_push(lines):
+    """Build a Loki push body from (timestamp_ns, level, message) tuples."""
+    values = [
+        [str(timestamp_ns), json.dumps({"level": level, "msg": message})]
+        for timestamp_ns, level, message in lines
+    ]
+    return {"streams": [{"stream": LOKI_LABELS, "values": values}]}
+
+
+class LokiHandler(logging.Handler):
+    """Collects a run's log lines, so they reach Loki in one request at the end of the run."""
+
+    def __init__(self, push_url):
+        super().__init__()
+        self.push_url = push_url
+        self.lines = []
+
+    def emit(self, record):
+        timestamp_ns = int(record.created * 1_000_000_000)
+        self.lines.append((timestamp_ns, record.levelname.lower(), self.format(record)))
+
+    def push(self):
+        # Detached first, so a failed push is logged to the file and not queued for Loki again.
+        logging.getLogger().removeHandler(self)
+        if not self.lines:
+            return
+        try:
+            send_request(
+                self.push_url,
+                LOKI_PUSH_TIMEOUT_SECONDS,
+                method="POST",
+                json_body=format_loki_push(self.lines),
+            )
+        except REQUEST_ERRORS as error:
+            logger.warning(f"Failed to push {len(self.lines)} log lines to Loki: {error}")
+
+
 def resolve_path(path):
     # Paths in the config are relative to the script, so cron works from any directory.
     return SCRIPT_DIR / path
@@ -164,9 +213,16 @@ if __name__ == "__main__":
         format="%(asctime)s [%(levelname)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )
+    loki_handler = None
+    if config.get("loki_url"):
+        loki_handler = LokiHandler(loki_push_url(config["loki_url"]))
+        logging.getLogger().addHandler(loki_handler)
     try:
         main(config)
     except Exception:
         # No metrics get written, so Grafana sees last_run go stale.
         logger.exception("Updater crashed")
         raise
+    finally:
+        if loki_handler:
+            loki_handler.push()

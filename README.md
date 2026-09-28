@@ -24,6 +24,7 @@ The config is read from `config.json` next to the script; use `--config /other/p
 | `dns_record_ttl_seconds` | `120` | TTL set on records the script updates |
 | `log_file` | `cloudflare_updater.log` | Where errors and updates are logged |
 | `metrics_file` | not set | Where to write Prometheus metrics; no metrics without it |
+| `loki_url` | not set | Loki address, e.g. `http://loki.example.tld:3100`, to also ship the log to Grafana Loki |
 
 Relative paths are relative to the script's folder.
 
@@ -46,3 +47,8 @@ Useful alerts:
 - Not running or crashing: `time() - cloudflare_updater_last_run_timestamp_seconds > 600`
 
 Error details are in the log file.
+
+With `loki_url` set, the same lines also go to Loki as `service_name="cloudflareupdater"`, in one
+push at the end of each run. `/loki/api/v1/push` is added unless the URL already has a path. A
+quiet run logs nothing, so it pushes nothing; the metrics above are what shows it is running. If
+Loki can't be reached the lines are dropped and a warning goes to the log file.

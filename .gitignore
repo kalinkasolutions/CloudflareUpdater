@@ -1,7 +1,7 @@
 *.log
 previous_ip
 config.json
-config.json.bak
+*.bak
 *.prom
 *.tmp
 __pycache__/

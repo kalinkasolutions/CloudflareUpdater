@@ -32,5 +32,6 @@
     "request_timeout_seconds": 10,
     "dns_record_ttl_seconds": 120,
     "log_file": "cloudflare_updater.log",
-    "metrics_file": "/var/lib/prometheus/node-exporter/cloudflare_updater.prom"
+    "metrics_file": "/var/lib/prometheus/node-exporter/cloudflare_updater.prom",
+    "loki_url": ""
 }

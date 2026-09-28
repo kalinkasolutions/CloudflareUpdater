@@ -1,0 +1,3 @@
+# Only the script goes into the image; keep API tokens and logs out of the build context.
+*
+!update_cloudflare.py

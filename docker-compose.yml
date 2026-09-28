@@ -1,0 +1,25 @@
+services:
+  app:
+    container_name: cloudflareupdater
+    image: kalinkasolutions/cloudflareupdater:latest
+    restart: always
+    # Forwards docker stop to the run loop; without it the shell as PID 1 ignores SIGTERM.
+    init: true
+    # Run as the host user that owns ./logs, so the log file is yours and needs no chown.
+    user: "${PUID:-1000}:${PGID:-1000}"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    environment:
+      # Seconds between runs.
+      - INTERVAL_SECONDS=${INTERVAL_SECONDS:-60}
+    volumes:
+      # A folder, not the file itself: editors replace config.json on save, and a single-file
+      # mount would keep showing the container the old one.
+      - ./config:/config:ro
+      - ./logs:/logs
+      # Optional Prometheus metrics: mount node_exporter's textfile folder and set
+      # "metrics_file": "/metrics/cloudflare_updater.prom" in config.json.
+      # - /var/lib/prometheus/node-exporter:/metrics

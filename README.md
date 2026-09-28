@@ -24,7 +24,7 @@ The config is read from `config.json` next to the script; use `--config /other/p
 | `dns_record_ttl_seconds` | `120` | TTL set on records the script updates |
 | `log_file` | `cloudflare_updater.log` | Where errors and updates are logged |
 | `metrics_file` | not set | Where to write Prometheus metrics; no metrics without it |
-| `loki_url` | not set | Loki address, e.g. `http://loki.example.tld:3100`, to also ship the log to Grafana Loki |
+| `loki_url` | not set | Loki address, e.g. `http://loki.example.tld:3100`, to also ship the log to Grafana Loki; empty turns it off |
 
 Relative paths are relative to the script's folder.
 

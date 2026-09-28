@@ -182,6 +182,9 @@ def parse_args():
     parser.add_argument(
         "--config", type=Path, default=DEFAULT_CONFIG_FILE, help="path to config.json"
     )
+    parser.add_argument(
+        "--log-file", type=Path, help="where to log; overrides log_file in the config"
+    )
     return parser.parse_args()
 
 
@@ -206,9 +209,10 @@ def main(config):
 
 
 if __name__ == "__main__":
-    config = json.loads(parse_args().config.read_text())
+    args = parse_args()
+    config = json.loads(args.config.read_text())
     logging.basicConfig(
-        filename=resolve_path(config.get("log_file", DEFAULT_LOG_FILE)),
+        filename=args.log_file or resolve_path(config.get("log_file", DEFAULT_LOG_FILE)),
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",

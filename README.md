@@ -15,6 +15,26 @@ crontab entry (`flock -n` skips a run while the previous one is still busy):
 `* * * * * flock -n /tmp/cloudflare_updater.lock /usr/bin/python3 /path/to/update_cloudflare.py`
 
 The config is read from `config.json` next to the script; use `--config /other/path.json` to pick another one.
+`--log-file /other/path.log` overrides `log_file`.
+
+## Docker
+
+The image `kalinkasolutions/cloudflareupdater` runs the script every 60 seconds (`INTERVAL_SECONDS`).
+Next to the example `docker-compose.yml`:
+
+```sh
+mkdir config logs
+cp config.example.json config/config.json   # then fill in zones and API tokens
+docker compose up -d
+```
+
+`config/` is mounted read-only at `/config`, and the log goes to `logs/cloudflare_updater.log`, so
+`log_file` in the config is ignored. For metrics, uncomment the node_exporter mount in the compose
+file and set `"metrics_file": "/metrics/cloudflare_updater.prom"`. The container runs as
+`PUID`/`PGID` (default 1000), which needs write access to `logs/` and the metrics folder.
+
+Publishing a GitHub release builds the image for linux/amd64 and pushes it tagged with the release
+name and `latest`. It needs the repository secrets `DOCKER_HUB_USERNAME` and `DOCKER_HUB_API_TOKEN`.
 
 ## Optional settings
 
